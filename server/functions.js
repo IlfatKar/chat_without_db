@@ -5,11 +5,13 @@ const parse = (str) => {
       case 'SEND':
         res = {
           type: "MESSAGE",
-          data: {
-            id: tmp.data.id,
-            text: tmp.data.text,
-            sender: tmp.data.sender,
-          }
+          data: tmp.data
+        }
+      break;
+      case 'REQUEST_MESSAGES':
+        res = {
+          type: "MESSAGES",
+          data: tmp.data,
         }
       break;
       default:

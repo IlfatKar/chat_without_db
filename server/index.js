@@ -2,18 +2,43 @@ const WebSocket  = require('ws');
 const {parse} = require('./functions.js');
 
 const wsServer = new WebSocket.Server({port: 9000});
+let lastConn = null;
 
 wsServer.on('connection', (wsClient) => {
+  if(wsServer.clients.size > 1){
+    lastConn = wsClient
+    const [firstClient] = wsServer.clients;
+    firstClient.send(JSON.stringify({
+      type: 'REQUEST_MESSAGES',
+    }))
+  }
+
+  onlineToAll(wsServer)
+
   wsClient.on('message', (message) => {
     const res = parse(message);
     if(!res.error){
-      wsServer.clients.forEach((client) => {
-        client.send(JSON.stringify(res));
-      })
+      if(res.type === 'MESSAGE'){
+        wsServer.clients.forEach((client) => {
+          client.send(JSON.stringify(res));
+        })
+      } else if(lastConn && res.type === 'MESSAGES'){
+        lastConn.send(JSON.stringify(res));
+        lastConn = null
+      }
     }
   })
   wsClient.on('close', () => {
-    wsClient.send('test');
+    onlineToAll(wsServer)
   })
 });
+
+const onlineToAll = (wsServer) => {
+  wsServer.clients.forEach((client) => {
+      client.send(JSON.stringify({
+        type: 'online',
+        data: wsServer.clients.size,
+      }));
+    })
+}
 
