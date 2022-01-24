@@ -1,5 +1,5 @@
 const WebSocket  = require('ws');
-const {parse} = require('./functions.js');
+const {parse, onlineToAll} = require('./functions.js');
 
 const wsServer = new WebSocket.Server({port: 9000});
 let lastConn = null;
@@ -32,13 +32,4 @@ wsServer.on('connection', (wsClient) => {
     onlineToAll(wsServer)
   })
 });
-
-const onlineToAll = (wsServer) => {
-  wsServer.clients.forEach((client) => {
-      client.send(JSON.stringify({
-        type: 'online',
-        data: wsServer.clients.size,
-      }));
-    })
-}
 

@@ -24,5 +24,14 @@ const parse = (str) => {
     return res;
   }
 
+const onlineToAll = (wsServer) => {
+  wsServer.clients.forEach((client) => {
+      client.send(JSON.stringify({
+        type: 'online',
+        data: wsServer.clients.size,
+      }));
+    })
+  }
 
 module.exports.parse = parse;
+module.exports.onlineToAll = onlineToAll;
