@@ -6,6 +6,8 @@
     </div>
     <form class="inputs" @submit.prevent="send">
       <input type="text" v-model.trim="input"/>
+      <button @click="file" class="file">File</button>
+      <input hidden ref="imageRef" type="file" accept=".jpg, .jpeg, .png" @change="setImage"/>
       <button type="submit">Send</button>
     </form>
   </div>
@@ -67,12 +69,25 @@ export default {
       needScroll: false,
       onlineCount: 0,
       simpleCrypto: new SimpleCrypto('super secret key'),
+      image: null,
     }
   },
   components: {
     Message,
   },
   methods: {
+    file(){
+      this.$refs.imageRef.click()
+    },
+    setImage(e) {
+      if(e.target.files[0]){
+        const reader = new FileReader()
+        reader.onloadend = () => {
+          this.image = reader.result
+        }
+        reader.readAsDataURL(e.target.files[0])
+      }
+    },
     send(){
       this.lastId = uuidv4();
       const data = this.simpleCrypto.encrypt(JSON.stringify(
@@ -80,12 +95,14 @@ export default {
           id: this.lastId,
           text: this.input,
           sender: this.user,
+          image: this.image,
         }))
       this.input && this.ws.send(JSON.stringify({
         action: 'SEND',
         data,
       }))
       this.input = '';
+      this.image = null;
     },
     scroll(){
       const el = this.$refs.chat;

@@ -1,7 +1,8 @@
 <template>
   <div class="message" :class="me ? 'me' : ''">
     <div class="status">...{{msg.id.slice(25)}} > <span class='sender'>{{me ? ' You' : 'Anon'}}</span></div>
-    {{msg.text}}
+    <img :src="msg.image"/>
+    <div>{{msg.text}}</div>
   </div>
 </template>
 
@@ -20,6 +21,9 @@
 }
 .status .sender{
   color: green;
+}
+img{
+width: 200px;
 }
 </style>
 
